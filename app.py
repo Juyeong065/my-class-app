@@ -5,12 +5,19 @@ from typing import Dict, List
 def init_state() -> None:
     if "todos" not in st.session_state:
         st.session_state.todos = []  # type: List[Dict[str, object]]
+    if "new_todo" not in st.session_state:
+        st.session_state.new_todo = ""
 
 
 def add_todo(text: str) -> None:
     if not text.strip():
         return
     st.session_state.todos.append({"text": text.strip(), "done": False})
+
+
+def submit_todo() -> None:
+    add_todo(st.session_state.new_todo)
+    st.session_state.new_todo = ""
 
 
 def remove_todo(index: int) -> None:
@@ -29,11 +36,8 @@ def main() -> None:
     st.write("Streamlit 세션 상태를 사용해 할 일을 추가하고, 완료 체크하고, 삭제하세요.")
 
     with st.form(key="todo_form"):
-        new_todo = st.text_input("새 할 일", placeholder="예: 장보기 목록 작성")
-        submitted = st.form_submit_button("추가")
-
-        if submitted:
-            add_todo(new_todo)
+        st.text_input("새 할 일", placeholder="예: 장보기 목록 작성", key="new_todo")
+        st.form_submit_button("추가", on_click=submit_todo)
 
     total_count = len(st.session_state.todos)
     done_count = sum(1 for item in st.session_state.todos if item["done"])
